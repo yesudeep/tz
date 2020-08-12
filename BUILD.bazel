@@ -1,0 +1,76 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+TZ_COPTS = [
+    "-std=c11",
+]
+
+cc_binary(
+    name = "zic",
+    srcs = [
+        "zic.c",
+    ],
+    copts = TZ_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":zic_lib",
+    ],
+)
+
+cc_binary(
+    name = "zdump",
+    srcs = [
+        "asctime.c",
+        "localtime.c",
+        "strftime.c",
+        "zdump.c",
+    ],
+    copts = TZ_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":zic_lib",
+    ],
+)
+
+cc_binary(
+    name = "date",
+    srcs = [
+        "date.c",
+    ],
+    copts = TZ_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":zic_lib",
+    ],
+)
+
+cc_library(
+    name = "zic_lib",
+    hdrs = [
+        "private.h",
+        "tzfile.h",
+        "version.h",
+    ],
+    data = [
+        ":version_header",
+    ],
+)
+
+genrule(
+    name = "version_header",
+    srcs = [
+        ".gitignore",
+    ],
+    outs = [
+        "version.h",
+    ],
+    # Currently this just uses the timestamp for the version.
+    # We'll switch to using git timestamps later if possible.
+    cmd = """set -e
+V=`date +"%Y%m%d-bazel"`
+cat <<EOF > $@
+static char const PKGVERSION[]="(tzcode) ";
+static char const TZVERSION[]="$${V}";
+static char const REPORT_BUGS_TO[]="tz@iana.org";
+EOF""",
+    stamp = True,
+)
