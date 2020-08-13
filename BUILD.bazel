@@ -1,8 +1,27 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
-TZ_COPTS = [
-    "-std=c11",
-]
+config_setting(
+    name = "platform_windows",
+    constraint_values = [
+        "@platforms//os:windows",
+    ],
+)
+
+TZ_COPTS = select({
+    ":platform_windows": [],
+    "//conditions:default": [
+        "-std=c11",
+    ],
+})
+
+TZ_DEFINES = select({
+    ":platform_windows": [
+        "HAVE_UNISTD_H=0",
+        "HAVE_SYS_WAIT_H=0",
+        "HAVE_SYS_STAT_H=0",
+    ],
+    "//conditions:default": [],
+})
 
 cc_binary(
     name = "zic",
@@ -10,9 +29,10 @@ cc_binary(
         "zic.c",
     ],
     copts = TZ_COPTS,
+    defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
-        ":zic_lib",
+        ":headers",
     ],
 )
 
@@ -25,9 +45,10 @@ cc_binary(
         "zdump.c",
     ],
     copts = TZ_COPTS,
+    defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
-        ":zic_lib",
+        ":headers",
     ],
 )
 
@@ -37,9 +58,10 @@ cc_binary(
         "date.c",
     ],
     copts = TZ_COPTS,
+    defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
-        ":zic_lib",
+        ":headers",
     ],
 )
 
@@ -51,25 +73,27 @@ cc_library(
         "localtime.c",
         "strftime.c",
     ],
-    hdrs = [
-        "private.h",
-        "tzfile.h",
-    ],
     copts = TZ_COPTS,
+    defines = TZ_DEFINES,
     linkstatic = True,
     visibility = ["//visibility:public"],
+    deps = [
+        ":headers",
+    ],
 )
 
 cc_library(
-    name = "zic_lib",
+    name = "headers",
     hdrs = [
         "private.h",
         "tzfile.h",
         "version.h",
     ],
+    copts = TZ_COPTS,
     data = [
         ":version_header",
     ],
+    defines = TZ_DEFINES,
 )
 
 genrule(
