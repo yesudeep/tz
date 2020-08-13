@@ -16,9 +16,13 @@ TZ_COPTS = select({
 
 TZ_DEFINES = select({
     ":platform_windows": [
-        "HAVE_UNISTD_H=0",
+        "HAVE_POSIX_DECLS=0",
+        "HAVE_SYS_STAT_H=1",
         "HAVE_SYS_WAIT_H=0",
-        "HAVE_SYS_STAT_H=0",
+        "HAVE_UNISTD_H=0",
+        "HAVE_LOCALTIME_R=0",
+        "HAVE_LINK=0",
+        "HAVE_SYMLINK=0",
     ],
     "//conditions:default": [],
 })
@@ -32,22 +36,29 @@ cc_binary(
     defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
+        ":getopt",
         ":headers",
     ],
 )
 
 cc_binary(
     name = "zdump",
-    srcs = [
-        "asctime.c",
-        "localtime.c",
-        "strftime.c",
-        "zdump.c",
-    ],
+    srcs = select({
+        ":platform_windows": [
+            "zdump.c",
+        ],
+        "//conditions:default": [
+            "asctime.c",
+            "localtime.c",
+            "strftime.c",
+            "zdump.c",
+        ],
+    }),
     copts = TZ_COPTS,
     defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
+        ":getopt",
         ":headers",
     ],
 )
@@ -61,26 +72,45 @@ cc_binary(
     defines = TZ_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
+        ":getopt",
         ":headers",
     ],
 )
 
 cc_library(
-    name = "libtz",
+    name = "getopt",
     srcs = [
-        "asctime.c",
-        "difftime.c",
-        "localtime.c",
-        "strftime.c",
-    ],
-    copts = TZ_COPTS,
-    defines = TZ_DEFINES,
-    linkstatic = True,
-    visibility = ["//visibility:public"],
-    deps = [
-        ":headers",
+        "getopt.c",
     ],
 )
+
+# cc_library(
+#     name = "libtz",
+#     srcs = select({
+#         ":platform_windows": [
+#             "zdump.c",
+#         ],
+#         "//conditions:default": [
+#             "asctime.c",
+#             "localtime.c",
+#             "strftime.c",
+#             "zdump.c",
+#         ],
+#     }),
+#     srcs = [
+#         "asctime.c",
+#         "difftime.c",
+#         "localtime.c",
+#         "strftime.c",
+#     ],
+#     copts = TZ_COPTS,
+#     defines = TZ_DEFINES,
+#     linkstatic = True,
+#     visibility = ["//visibility:public"],
+#     deps = [
+#         ":headers",
+#     ],
+# )
 
 cc_library(
     name = "headers",
