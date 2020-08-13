@@ -84,34 +84,6 @@ cc_library(
     ],
 )
 
-# cc_library(
-#     name = "libtz",
-#     srcs = select({
-#         ":platform_windows": [
-#             "zdump.c",
-#         ],
-#         "//conditions:default": [
-#             "asctime.c",
-#             "localtime.c",
-#             "strftime.c",
-#             "zdump.c",
-#         ],
-#     }),
-#     srcs = [
-#         "asctime.c",
-#         "difftime.c",
-#         "localtime.c",
-#         "strftime.c",
-#     ],
-#     copts = TZ_COPTS,
-#     defines = TZ_DEFINES,
-#     linkstatic = True,
-#     visibility = ["//visibility:public"],
-#     deps = [
-#         ":headers",
-#     ],
-# )
-
 cc_library(
     name = "headers",
     hdrs = [
