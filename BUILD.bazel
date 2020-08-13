@@ -82,6 +82,9 @@ cc_library(
     srcs = [
         "getopt.c",
     ],
+    hdrs = [
+        "getopt.h",
+    ],
 )
 
 cc_library(
