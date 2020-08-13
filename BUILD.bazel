@@ -44,6 +44,23 @@ cc_binary(
 )
 
 cc_library(
+    name = "libtz",
+    srcs = [
+        "asctime.c",
+        "difftime.c",
+        "localtime.c",
+        "strftime.c",
+    ],
+    hdrs = [
+        "private.h",
+        "tzfile.h",
+    ],
+    copts = TZ_COPTS,
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "zic_lib",
     hdrs = [
         "private.h",
